@@ -1,0 +1,28 @@
+groups:
+  - name: Node Exporter
+    interval: 30s
+    rules:
+      - alert: HighCPUUsage
+        expr: (1 - avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m]))) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "CPU 使用率过高 (instance {{ $labels.instance }})"
+          description: "CPU 使用率已达到 {{ $value | humanizePercentage }}"
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "内存使用率过高 (instance {{ $labels.instance }})"
+          description: "内存使用率已达到 {{ $value | humanizePercentage }}"
+      - alert: LowDiskSpace
+        expr: (node_filesystem_avail_bytes{fstype=~"ext4|xfs"} / node_filesystem_size_bytes) < 0.1
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "磁盘空间不足 (instance {{ $labels.instance }})"
+          description: "磁盘剩余空间不足 10%"

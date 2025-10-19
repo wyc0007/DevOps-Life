@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-health-checker
+  namespace: k8s-health-checker
+  labels:
+    app: k8s-health-checker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-health-checker
+  template:
+    metadata:
+      labels:
+        app: k8s-health-checker
+    spec:
+      serviceAccountName: k8s-health-checker
+      containers:
+      - name: health-checker
+        image: local-harbor.esxi.shuqinkeji.cn/library/k8s-health-checker:latest
+        imagePullPolicy: Always
+        env:
+        - name: OUTPUT_FILE
+          value: "/app/output/health-check-urls"
+        - name: NAMESPACE_BLACKLIST
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: NAMESPACE_BLACKLIST
+        - name: VERIFY_URLS
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: VERIFY_URLS
+        - name: EXPORT_EXCEL
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: EXPORT_EXCEL
+        - name: RUN_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: RUN_MODE
+        - name: SCHEDULE_INTERVAL
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: SCHEDULE_INTERVAL
+        - name: INSECURE_TLS
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: INSECURE_TLS
+        - name: CONCURRENCY
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: CONCURRENCY
+        - name: TIMEOUT
+          valueFrom:
+            configMapKeyRef:
+              name: k8s-health-checker-config
+              key: TIMEOUT
+        - name: TZ
+          value: "Asia/Shanghai"
+        volumeMounts:
+        - name: output
+          mountPath: /app/output
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "500m"
+            memory: "256Mi"
+        livenessProbe:
+          exec:
+            command:
+            - sh
+            - -c
+            - test -f /app/output/health-check-urls || exit 1
+          initialDelaySeconds: 30
+          periodSeconds: 60
+          timeoutSeconds: 10
+          failureThreshold: 3
+      volumes:
+      - name: output
+        persistentVolumeClaim:
+          claimName: k8s-health-checker-output
+      restartPolicy: Always

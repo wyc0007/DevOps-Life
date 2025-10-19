@@ -1,0 +1,13 @@
+#环境变量文件
+.env
+#grafana相关
+grafana/provisioning/datasources
+grafana/provisioning/dashboards
+grafana/data
+#prometheus相关
+prometheus/data
+prometheus/config
+#clickhouse相关
+clickhouse_reports_html
+clickhouse/clickhouse_data
+clickhouse/clickhouse_logs

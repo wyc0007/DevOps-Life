@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: k8s-health-checker-output
+  namespace: k8s-health-checker
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: managednfs-storage  # 使用默认 NFS 存储类

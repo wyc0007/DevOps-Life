@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-health-checker-config
+  namespace: k8s-health-checker
+data:
+  NAMESPACE_BLACKLIST: "kube-system,kube-public,kube-node-lease"
+  VERIFY_URLS: "true"
+  EXPORT_EXCEL: "true"
+  RUN_MODE: "schedule"
+  SCHEDULE_INTERVAL: "3600"
+  INSECURE_TLS: "true"   # 跳过 TLS 证书验证（内部服务）
+  CONCURRENCY: "20"      # 并发验证数量 (1-100)
+  TIMEOUT: "10"          # 验证超时时间（秒，1-60）
